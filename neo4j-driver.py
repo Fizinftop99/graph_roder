@@ -26,7 +26,8 @@ def make_graph(tx: Transaction, data: pd.DataFrame):
                 #     print(wrk_id, "->", flw_id)
                 tx.run("MATCH (a:Work) WHERE a.id = $wrk_id "
                        "MERGE (follower:Work {id: $flw_id, name: $flw_name}) "
-                       "MERGE (a)-[:FOLLOWS]->(follower)",
+                       "MERGE (a)-[r:FOLLOWS]->(follower) "
+                       "SET r.weight = coalesce(r.weight, 0) + 1",
                        wrk_id=wrk_id, flw_id=flw_id,
                        flw_name=data.loc[flw_id, 'Название операции'])  # if flw_id in id_lst else flw_id)
 
@@ -39,9 +40,10 @@ def clear_database(tx: Transaction):
 def main():
     data = read_graph_data("2021-11-19 Roder связи.xlsx")
     # data = read_graph_data("R1080.xlsx")
-    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
+    # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     with driver.session() as session:
-        session.write_transaction(clear_database)
+        # session.write_transaction(clear_database)
         session.write_transaction(make_graph, data)
     driver.close()
 
