@@ -12,7 +12,7 @@ def read_graph_data(file_name: str) -> pd.DataFrame:
 
 
 def make_graph(data: pd.DataFrame) -> Digraph:
-    id_lst1 = data.index.tolist()
+    id_lst = data.index.tolist()
     g_attr = {
         # 'lheight': '20',
         'size': '10,5',
@@ -25,8 +25,9 @@ def make_graph(data: pd.DataFrame) -> Digraph:
         # 'ranksep': '0.1',
         'height': '1'
     }
-    gra = Digraph(graph_attr=g_attr, node_attr=n_attr)
-    for i in id_lst1:
+    # gra = Digraph(graph_attr=g_attr, node_attr=n_attr)
+    gra = Digraph()
+    for i in id_lst:
         gra.node(i, data.loc[i, 'Название операции'])
         s = data.loc[i, 'Последователи']
         if s == s:  # Проверка на то, что есть Последователи (s != NaN)
@@ -51,7 +52,7 @@ def main():
 
     data3 = read_graph_data('2021-11-19 Roder связи.xlsx')
     gra3 = make_graph(data3)
-    gra3.render('Graph3', view=True)
+    gra3.render('Graph3')
 
 
 if __name__ == "__main__":
