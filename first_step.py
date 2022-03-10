@@ -1,7 +1,7 @@
 from neo4j import GraphDatabase
 
 
-def main():
+def first_step():
     id_lst = ['R1870',  # Подъем каркаса
               'R1040',  # Каркас установлен
               'R1000',  # Договор заключен
@@ -13,7 +13,7 @@ def main():
     WHERE n.id IN [{id_str}] AND m.id IN [{id_str}]
     RETURN n,m
     '''
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
+    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     session1 = driver.session(database="neo4j")
     session2 = driver.session(database="new")
     result = session1.run(q_data_obtain).data()
@@ -32,4 +32,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    first_step()
