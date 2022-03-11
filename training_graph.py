@@ -1,6 +1,3 @@
-"""
-Create a graph for testing algorithms
-"""
 from neo4j import GraphDatabase, Transaction
 
 
