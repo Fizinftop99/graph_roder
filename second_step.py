@@ -96,9 +96,6 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
             RETURN m
             '''
 
-    if id in id_list:
-        print("nachalo")
-
     result = session.run(q_data_obtain, id=id).data()
     # print(id)
     # если нет наследников то вернуть резульат
@@ -114,7 +111,7 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
 
     for i in result:
         # если элемент красный, то добавляем его в результат
-        if i['m']['id'] in id_list:
+        if i['m']['id'] in id_list and i['m']['id'] not in search_result[level - 1][1]:
             search_result[level - 1][1].append((i['m']['id']))
         # если элемент не красный, то рекурсивно продолжаем поиск
         else:
@@ -125,6 +122,7 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
 
 def new_search(id_list):
     for element in id_list:
+        print("Начинаем работу с новым id")
         deep_search(element, id_list)
         # запускаем поиск в глубину до первого красного
 
@@ -149,8 +147,6 @@ def merging(el_id, nodes):
                             id2=level
                             )
 
-            # print(element)
-
 
 def main():
     ids = id_from_new_db()
@@ -164,6 +160,7 @@ def main():
     for element in ids:
         # print(element, deep_search(element, ids))
         search_result = []
+        print("Работаем с новым id")
         merging(element, deep_search(element, ids, search_result))
 
 
