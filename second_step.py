@@ -87,19 +87,19 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
     driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     session = driver.session(database="neo4j")
 
-    id_lst = [str(id)]
-
-    id_str = ', '.join(map(lambda x: "'" + x + "'", id_lst))
+    # id_lst = [str(id)]
+    #
+    # id_str = ', '.join(map(lambda x: "'" + x + "'", id_lst))
     q_data_obtain = f'''
             MATCH (n)-[]->(m)
-            WHERE n.id IN [{id_str}]
+            WHERE n.id = $id
             RETURN m
             '''
 
     if id in id_list:
         print("nachalo")
 
-    result = session.run(q_data_obtain).data()
+    result = session.run(q_data_obtain, id=id).data()
     # print(id)
     # если нет наследников то вернуть резульат
     if not result:
@@ -114,8 +114,8 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
 
     for i in result:
         # если элемент красный, то добавляем его в результат
-        if i['m']['id'] in id_lst:
-            search_result[i - 1][1].append((i['m']['id']))
+        if i['m']['id'] in id_list:
+            search_result[level - 1][1].append((i['m']['id']))
         # если элемент не красный, то рекурсивно продолжаем поиск
         else:
             deep_search(i['m']['id'], id_list, search_result, level + 1)
