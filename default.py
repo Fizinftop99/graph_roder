@@ -1,4 +1,7 @@
 from neo4j import GraphDatabase
+import pandas as pd
+import numpy as np
+import datetime
 
 
 # получаем все id из новой бд
@@ -81,7 +84,7 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
         print("nachalo")
 
     result = session.run(q_data_obtain, id=id).data()
-    print(result)
+
     # если нет наследников то вернуть резульат
     if not result:
         print("нет наследников")
@@ -91,6 +94,9 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
         return search_result
     else:
         print('есть наследники')
+        df = pd.DataFrame(result)
+        result = df.to_dict('records')
+        print(result)
         print()
     # если глубина результата меньше чем, глубина поиска, то добавляем список со значением глубины
     if len(search_result) < level:
@@ -122,8 +128,8 @@ def merging(el_id, nodes):
         for level in node[1]:  # level = list of friends ids
             if el_id in id_from_new_db() and level in id_from_new_db():
                 session.run('''
-                            MERGE (n:Work {id: $id1})
-                            MERGE (m:Work {id: $id2})
+                            MERGE (n:Work {id: $id1, name: $id1})
+                            MERGE (m:Work {id: $id2, name: $id2})
                             MERGE (n)-[r:FOLLOWS]->(m)
                             ''',
                             id1=el_id,
@@ -134,6 +140,7 @@ def merging(el_id, nodes):
 
 
 def main():
+    starttime = datetime.datetime.now()
     ids = id_from_new_db()
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
     with driver.session(database="new") as session:
@@ -147,15 +154,7 @@ def main():
         search_result = []
         merging(element, deep_search(element, ids, search_result))
 
-    # q_data_obtain = f'''
-    #             MATCH (n)-[]->(m)
-    #             WHERE n.id = '1'
-    #             RETURN m
-    #             '''
-    # driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
-    # with driver.session(database="bfs") as session:
-    #     result = session.run(q_data_obtain).data()
-    #     print(result)
+    print(datetime.datetime.now() - starttime)
 
 
 if __name__ == "__main__":
