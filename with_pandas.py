@@ -3,9 +3,10 @@ import pandas as pd
 import numpy as np
 import datetime
 
+driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
+
 
 # получаем все id из новой бд
-
 def id_from_new_db():
     id_lst = ['1', '3', '4', '9', '10', '11', '12', '13']
     return id_lst
@@ -14,8 +15,7 @@ def id_from_new_db():
 # поиск ближайших друзей для элемента
 
 def first_friends(id):
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
-    session1 = driver.session(database="bfs")
+    session = driver.session(database="bfs")
 
     id_lst = [str(id)]
 
@@ -26,7 +26,7 @@ def first_friends(id):
         RETURN m
         '''
 
-    result = session1.run(q_data_obtain).data()
+    result = session.run(q_data_obtain).data()
     for i in result:
         id_lst.append((i['m']['id']))
     if id in id_lst:
@@ -35,8 +35,6 @@ def first_friends(id):
 
 
 # для друзей ищем их друзей и запомниаем их их глубину относительно нулевого элемента
-
-
 def second_friends(id):
     friends = first_friends(id)
     result = []
@@ -68,61 +66,34 @@ def friend(id, n):
 
 
 def deep_search(id, id_list, search_result, level=1, iter=1):
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
     session = driver.session(database="bfs")
-
-    # id_lst = [str(id)]
-    #
-    # id_str = ', '.join(map(lambda x: "'" + x + "'", id_lst))
     q_data_obtain = f'''
             MATCH (n)-[]->(m)
             WHERE n.id = $id
             RETURN m
             '''
-
-    if id in id_list:
-        print("nachalo")
-
     result = session.run(q_data_obtain, id=id).data()
 
-    # если нет наследников то вернуть резульат
+    # если нет наследников то вернуть результат
     if not result:
-        print("нет наследников")
-        print(level)
-        print(search_result)
-        print()
         return search_result
-    else:
-        print('есть наследники')
-        df = pd.DataFrame(result)
-        result = df.to_dict('records')
-        print(result)
-        print()
-    # если глубина результата меньше чем, глубина поиска, то добавляем список со значением глубины
+
+    df = pd.DataFrame([r['m'] for r in result])
+    # если глубина результата меньше чем глубина поиска, то добавляем список со значением глубины
     if len(search_result) < level:
         search_result.append(list())
         search_result[level - 1] = [level, []]
 
-    for i in result:
-        # если элемент красный, то добавляем его в результат
-        if i['m']['id'] in id_list:
-            print(type(search_result[level - 1]))
-            print(search_result[level - 1][1])
-            search_result[level - 1][1].append(i['m']['id'])
-        # если элемент не красный, то рекурсивно продолжаем поиск
-        else:
-            deep_search(i['m']['id'], id_list, search_result, level + 1)
+    target_df = df.loc[df['id'].isin(id_list)]
+    not_target_df = df.loc[~df['id'].isin(id_list)]
+    search_result[level - 1][1].extend(target_df['id'].tolist())
+    for i in not_target_df['id'].tolist():
+        deep_search(i, id_list, search_result, level + 1)
 
     return search_result
 
 
 def merging(el_id, nodes):
-    # Remote database
-    # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
-
-    # Local database:
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
-
     session = driver.session(database="new")
     for node in nodes:
         for level in node[1]:  # level = list of friends ids
@@ -136,21 +107,13 @@ def merging(el_id, nodes):
                             id2=level
                             )
 
-            # print(element)
-
 
 def main():
     starttime = datetime.datetime.now()
     ids = id_from_new_db()
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
-    with driver.session(database="new") as session:
-        session.run("MATCH (n) DETACH DELETE n")
+    driver.session(database="new").run("MATCH (n) DETACH DELETE n")
 
-    # for element in ids:
-    #     # print(element, friend(element, 1))
-    #     merging(element, friend(element, 1))  # глубина поиска
     for element in ids:
-        # print(element, deep_search(element, ids))
         search_result = []
         merging(element, deep_search(element, ids, search_result))
 
