@@ -76,7 +76,7 @@ def main():
         nodes(path) as path
     ORDER BY index
     '''
-    with driver.session(database="neo4j") as session:
+    with driver.session(database="new") as session:
         # session.write_transaction(db_query, "CALL gds.graph.drop('myGraph', false) YIELD graphName;")
         session.write_transaction(clear_database)
         session.write_transaction(make_graph, data)
