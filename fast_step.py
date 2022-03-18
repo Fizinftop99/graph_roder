@@ -1,4 +1,4 @@
-from neo4j import GraphDatabase  # , Transaction
+from neo4j import GraphDatabase, Transaction  # , Transaction
 
 
 # получаем все id из новой бд
@@ -31,7 +31,7 @@ def id_from_new_db():
 
 # поиск ближайших друзей для элемента
 
-def first_friends(id):
+def first_friends(id: str):
     driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     session1 = driver.session(database="neo4j")
 
@@ -72,7 +72,7 @@ def first_friends(id):
 # для друзей ищем их друзей и запомниаем их их глубину относительно нулевого элемента
 
 
-def second_friends(id):
+def second_friends(id: str):
     friends = first_friends(id)
     result = []
     for element in friends:
@@ -86,7 +86,7 @@ def second_friends(id):
 
 # смотрим как они связаны в старом графе
 
-def friend(id, n):
+def friend(id: str, n: int):
     result = first_friends(id)
     super_result = [(0, first_friends(id))]
     new_result = []
@@ -100,7 +100,7 @@ def friend(id, n):
     return super_result
 
 
-def merging(tx, el_id, nodes):
+def merging(tx: Transaction, el_id: str, nodes: list):
     # session = driver.session(database="new")
     for node in nodes:
         for level in node[1]:  # level = list of friends ids

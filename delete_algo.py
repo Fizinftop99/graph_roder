@@ -20,7 +20,7 @@ def simple_merging(start_id: str, end_id: str):
                 )
 
 
-def smart_merging(start_id, end_id):
+def smart_merging(start_id: list, end_id: list):
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
 
     session = driver.session(database="new")
@@ -60,7 +60,7 @@ def removing_node(id: str):
     print(incoming, outcoming)
 
 
-def removing_nodes(red_ids, ids):
+def removing_nodes(red_ids: list, ids: list):
     for element in ids:
         if element not in red_ids:
             removing_node(element)
