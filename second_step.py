@@ -29,7 +29,7 @@ def id_from_new_db():
 
 # поиск ближайших друзей для элемента
 
-def first_friends(id):
+def first_friends(id: str):
     driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     session1 = driver.session(database="neo4j")
 
@@ -53,7 +53,7 @@ def first_friends(id):
 # для друзей ищем их друзей и запомниаем их их глубину относительно нулевого элемента
 
 
-def second_friends(id):
+def second_friends(id: str):
     friends = first_friends(id)
     result = []
     for element in friends:
@@ -68,7 +68,7 @@ def second_friends(id):
 # смотрим как они связаны в старом графе
 # переписать функцию так, чтобы искала, пока
 # не встретит либо другой красный элемент, либо тупик, либо не зайдет слишком глубоко
-def friend(id, n):
+def friend(id: str, n: int):
     result = first_friends(id)
     super_result = [(0, first_friends(id))]
     new_result = []
@@ -83,7 +83,7 @@ def friend(id, n):
     return super_result
 
 
-def deep_search(id, id_list, search_result, level=1, iter=1):
+def deep_search(id: str, id_list: list, search_result: list, level=1):
     driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     session = driver.session(database="neo4j")
 
@@ -95,9 +95,6 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
             WHERE n.id = $id
             RETURN m
             '''
-
-    if id in id_list:
-        print("nachalo")
 
     result = session.run(q_data_obtain, id=id).data()
     # print(id)
@@ -114,7 +111,7 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
 
     for i in result:
         # если элемент красный, то добавляем его в результат
-        if i['m']['id'] in id_list:
+        if i['m']['id'] in id_list and i['m']['id'] not in search_result[level - 1][1]:
             search_result[level - 1][1].append((i['m']['id']))
         # если элемент не красный, то рекурсивно продолжаем поиск
         else:
@@ -123,13 +120,14 @@ def deep_search(id, id_list, search_result, level=1, iter=1):
     return search_result
 
 
-def new_search(id_list):
+def new_search(id_list: list):
     for element in id_list:
+        print("Начинаем работу с новым id")
         deep_search(element, id_list)
         # запускаем поиск в глубину до первого красного
 
 
-def merging(el_id, nodes):
+def merging(el_id: str, nodes: list):
     # Remote database
     # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
 
@@ -149,8 +147,6 @@ def merging(el_id, nodes):
                             id2=level
                             )
 
-            # print(element)
-
 
 def main():
     ids = id_from_new_db()
@@ -164,6 +160,7 @@ def main():
     for element in ids:
         # print(element, deep_search(element, ids))
         search_result = []
+        print("Работаем с новым id")
         merging(element, deep_search(element, ids, search_result))
 
 
