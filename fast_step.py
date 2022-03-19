@@ -1,6 +1,10 @@
 from neo4j import GraphDatabase, Transaction  # , Transaction
 
 
+driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+session = driver.session()
+
+
 # получаем все id из новой бд
 def test_id():
     id_lst = ['R1870',  # Подъем каркаса
@@ -19,8 +23,6 @@ def id_from_new_db():
         RETURN n
         '''
 
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-    session = driver.session(database="neo4j")
     result = session.run(q_data_obtain).data()
     id_lst = []
     for i in result:

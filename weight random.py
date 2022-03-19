@@ -45,9 +45,9 @@ def db_query(tx: Transaction, query: str):
 
 
 def main():
-    data = read_graph_data("2021-11-19 Roder связи.xlsx")
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-    # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    data = read_graph_data("data/2021-11-19 Roder связи.xlsx")
+    # driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
+    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     q_create_graph = '''
     CALL gds.graph.create(
         'myGraph',
@@ -76,7 +76,7 @@ def main():
         nodes(path) as path
     ORDER BY index
     '''
-    with driver.session(database="new") as session:
+    with driver.session() as session:
         # session.write_transaction(db_query, "CALL gds.graph.drop('myGraph', false) YIELD graphName;")
         session.write_transaction(clear_database)
         session.write_transaction(make_graph, data)

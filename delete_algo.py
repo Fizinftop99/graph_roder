@@ -1,34 +1,30 @@
 from datetime import datetime
-
+import numpy as np
 from neo4j import GraphDatabase
 import second_step as sec
 import fast_step as fs
 
 
+driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+session = driver.session()
+
+
 def simple_merging(start_id: str, end_id: str):
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-
-    session = driver.session(database="new")
-
     session.run('''
-                                MERGE (n:Work {id: $id1})
-                                MERGE (m:Work {id: $id2})
-                                MERGE (n)-[r:FOLLOWS]->(m)
-                                ''',
+                MERGE (n:Work {id: $id1})
+                MERGE (m:Work {id: $id2})
+                MERGE (n)-[r:FOLLOWS]->(m)
+                ''',
                 id1=start_id,
                 id2=end_id
                 )
 
 
 def smart_merging(start_id: list, end_id: list):
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-
-    session = driver.session(database="new")
-
     session.run(f'''
-                                MERGE (n)-[r:FOLLOWS]->(m)
-                                WHERE n.id IN [{start_id}] AND n.id IN [{end_id}]
-                                ''',
+                MERGE (n)-[r:FOLLOWS]->(m)
+                WHERE n.id IN [{start_id}] AND n.id IN [{end_id}]
+                ''',
                 id1=start_id,
                 id2=end_id
                 )
@@ -52,10 +48,13 @@ def removing_node(id: str):
     session = driver.session(database="new")
     incoming = session.run(income_data_obtain, id=id).data()
     outcoming = session.run(outcome_data_obtain, id=id).data()
+    # преобразование результатов запроса в numpy.array
+    incoming = np.array([r['n']['id'] for r in incoming])
+    outcoming = np.array([r['m']['id'] for r in outcoming])
 
     for element in incoming:
         for subelement in outcoming:
-            simple_merging(element["n"]["id"], subelement["m"]["id"])
+            simple_merging(element, subelement)
 
     session.run("MATCH (n) WHERE n.id = $id DETACH DELETE n", id=id)
 
@@ -70,10 +69,9 @@ def removing_nodes(red_ids: list, ids: list):
 
 def main():
     starttime = datetime.now()
-    print(sorted(fs.id_from_new_db()))
-    removing_nodes(fs.test_id(), fs.id_from_new_db())
-    print()
+    removing_nodes(sec.id_from_new_db(), fs.id_from_new_db())
     print(datetime.now() - starttime)
+    driver.close()
 
 
 if __name__ == "__main__":
