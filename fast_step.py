@@ -14,13 +14,13 @@ def test_id():
 
 def id_from_new_db():
     q_data_obtain = f'''
-        MATCH (n)-[]->()
+        MATCH (n)
         
         RETURN n
         '''
 
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-    session = driver.session(database="new")
+    session = driver.session(database="neo4j")
     result = session.run(q_data_obtain).data()
     id_lst = []
     for i in result:

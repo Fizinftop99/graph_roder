@@ -46,6 +46,8 @@ def removing_node(id: str):
                 RETURN m
                 '''
 
+
+
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
     session = driver.session(database="new")
     incoming = session.run(income_data_obtain, id=id).data()
@@ -68,7 +70,9 @@ def removing_nodes(red_ids: list, ids: list):
 
 def main():
     starttime = datetime.now()
-    removing_nodes(sec.id_from_new_db(), fs.id_from_new_db())
+    print(sorted(fs.id_from_new_db()))
+    removing_nodes(fs.test_id(), fs.id_from_new_db())
+    print()
     print(datetime.now() - starttime)
 
 
