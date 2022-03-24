@@ -1,7 +1,6 @@
 from neo4j import GraphDatabase, Transaction  # , Transaction
 
-
-driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "Accelerati0n"))
 session = driver.session()
 
 
@@ -27,6 +26,36 @@ def id_from_new_db():
     id_lst = []
     for i in result:
         id_lst.append((i['n']['id']))
+
+    return list(set(id_lst))
+
+
+def id_and_name():
+    q_data_obtain = f'''
+            MATCH (n)
+
+            RETURN n
+            '''
+
+    result = session.run(q_data_obtain).data()
+    id_lst = []
+    for i in result:
+        id_lst.append((i['n']['id'], i['n']['name']))
+
+    return list(set(id_lst))
+
+
+def links(id:str):
+    q_data_obtain = f'''
+            MATCH (n)-[r]->(m)
+            WHERE n.id = $id
+            RETURN m
+            '''
+
+    result = session.run(q_data_obtain, id=id).data()
+    id_lst = []
+    for i in result:
+        id_lst.append(i['m']['id'])
 
     return list(set(id_lst))
 

@@ -4,7 +4,6 @@ from neo4j import GraphDatabase
 import second_step as sec
 import fast_step as fs
 
-
 driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
 session = driver.session()
 
@@ -23,7 +22,7 @@ def simple_merging(start_id: str, end_id: str):
 def smart_merging(start_id: list, end_id: list):
     session.run(f'''
                 MERGE (n)-[r:FOLLOWS]->(m)
-                WHERE n.id IN [{start_id}] AND n.id IN [{end_id}]
+                WHERE m.id IN [{start_id}] AND n.id IN [{end_id}]
                 ''',
                 id1=start_id,
                 id2=end_id
@@ -41,8 +40,6 @@ def removing_node(id: str):
                 WHERE n.id = $id
                 RETURN m
                 '''
-
-
 
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
     session = driver.session(database="new")
