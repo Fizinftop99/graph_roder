@@ -1,23 +1,38 @@
-from py2neo import Graph
 import pandas as pd
-from numpy.random import randint
-from pyspark.ml import Pipeline
-from pyspark.ml.classification import RandomForestClassifier
-from pyspark.ml.feature import StringIndexer, VectorAssembler
-from pyspark.ml.evaluation import BinaryClassificationEvaluator
-from pyspark.sql.types import *
-from pyspark.sql import functions as F
-from sklearn.metrics import roc_curve, auc
-from collections import Counter
-from cycler import cycler
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
+from neo4j import GraphDatabase
+import re
+
+
+def read_graph_data(file_name: str) -> pd.DataFrame:
+    df = pd.read_excel(file_name)
+    df.drop_duplicates(keep='first', inplace=True)
+    graph_data = df[['Идентификатор операции', 'ADCM_шифрГЭСН', 'Последователи']]
+    graph_data['Идентификатор операции'] = graph_data['Идентификатор операции'].apply(str.strip)
+    graph_data = graph_data[graph_data['Идентификатор операции'].str.startswith('A')]
+    graph_data.set_index('Идентификатор операции', inplace=True)  # Update indeces
+    return graph_data
+
+
+def m():
+    df_init = pd.read_excel("2022-02-07 МОЭК_ЕКС график по смете.xlsx")
+    df_init["is_duplicate"] = df_init.duplicated()
+    df = read_graph_data("2022-02-07 МОЭК_ЕКС график по смете.xlsx")
+    df["is_duplicate"] = df.duplicated()
+    with pd.ExcelWriter('duplicated.xlsx', mode='w') as excel_output1:
+        df_init.to_excel(excel_output1, sheet_name='before')
+        df.to_excel(excel_output1, sheet_name='after')
 
 
 def main():
-    graph = Graph("bolt://localhost:7687", auth=("neo4j", "2310"))
+    s = '(Learn Python) (not C++)'
+    result = re.findall('\(.*?\)', s)
+    print(result)
+
+    s = 'Learn Python (not C++)'
+    s = 'dffvdd'
+    result = s[s.find('(') + 1:s.find(')')]
+    print(s.find('('))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
