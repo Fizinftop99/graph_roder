@@ -4,20 +4,45 @@ from neo4j import GraphDatabase
 # получаем все id из новой бд
 
 def id_from_new_db():
-    q_data_obtain = f'''
-        MATCH (n)-[]->()
+    # q_data_obtain = f'''
+    #     MATCH (n)-[]->()
+    #
+    #     RETURN n
+    #     '''
+    #
+    # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    # session = driver.session(database="neo4j")#new
+    # result = session.run(q_data_obtain).data()
+    # id_lst = []
+    # for i in result:
+    #     id_lst.append((i['n']['id']))
+    #
+    # return list(set(id_lst))
+    id_lst = ['R1870',  # Подъем каркаса
+              'R1040',  # Каркас установлен
+              'R1000',  # Договор заключен
+              'R1080',  # Разработка Проектной документации
+              'R1190'  # Установка опорных плит
+              ]
+    return id_lst
 
-        RETURN n
-        '''
 
-    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
-    session = driver.session(database="neo4j")#new
-    result = session.run(q_data_obtain).data()
-    id_lst = []
-    for i in result:
-        id_lst.append((i['n']['id']))
 
-    return list(set(id_lst))
+# def id_from_new_db():
+#     q_data_obtain = f'''
+#         MATCH (n)-[]->()
+#
+#         RETURN n
+#         '''
+#
+#     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
+#     session = driver.session(database="neo4j")#new
+#     result = session.run(q_data_obtain).data()
+#     id_lst = []
+#     for i in result:
+#         id_lst.append((i['n']['id']))
+#
+#     return list(set(id_lst))
 
     #
     # id_lst = ['R1870',  # Подъем каркаса
@@ -32,7 +57,7 @@ def id_from_new_db():
 # поиск ближайших друзей для элемента
 
 def first_friends(id: str):
-    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
     session1 = driver.session(database="neo4j")
 
     id_lst = [str(id)]
@@ -86,7 +111,7 @@ def friend(id: str, n: int):
 
 
 def deep_search(id: str, id_list: list, search_result: list, level=1):
-    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
     session = driver.session(database="neo4j")
 
     # id_lst = [str(id)]

@@ -3,7 +3,6 @@ import pandas as pd
 from random import randint
 
 
-# noinspection PyArgumentList
 def read_graph_data(file_name: str) -> pd.DataFrame:
     df = pd.read_excel(file_name)
     graph_data = df[['Идентификатор операции', 'Название операции', 'Последователи']]  # , 'Предшественники'
@@ -45,42 +44,12 @@ def db_query(tx: Transaction, query: str):
 
 
 def main():
-    data = read_graph_data("data/2021-11-19 Roder связи.xlsx")
-    # driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
-    q_create_graph = '''
-    CALL gds.graph.create(
-        'myGraph',
-        'Work',
-        'FOLLOWS',
-        {
-            relationshipProperties: 'weight'
-        }
-    )
-    '''
-    q_stream = '''
-    MATCH (source:Work {name: 'Договор заключен'}), (target:Work {name: 'Установка Панель алюминиевая ()'})
-    CALL gds.shortestPath.dijkstra.stream('myGraph', {
-        sourceNode: source,
-        targetNode: target,
-        relationshipWeightProperty: 'weight'
-    })
-    YIELD index, sourceNode, targetNode, totalCost, nodeIds, costs, path
-    RETURN
-        index,
-        gds.util.asNode(sourceNode).name AS sourceNodeName,
-        gds.util.asNode(targetNode).name AS targetNodeName,
-        totalCost,
-        [nodeId IN nodeIds | gds.util.asNode(nodeId).name] AS nodeNames,
-        costs,
-        nodes(path) as path
-    ORDER BY index
-    '''
-    with driver.session() as session:
-        # session.write_transaction(db_query, "CALL gds.graph.drop('myGraph', false) YIELD graphName;")
+    data = read_graph_data("2021-11-19 Roder связи.xlsx")
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
+    # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    with driver.session(database="new") as session:
         session.write_transaction(clear_database)
         session.write_transaction(make_graph, data)
-        # session.write_transaction(db_query, q_create_graph)
     driver.close()
 
 

@@ -1,6 +1,6 @@
 from neo4j import GraphDatabase, Transaction  # , Transaction
 
-driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "Accelerati0n"))
+driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
 session = driver.session()
 
 
@@ -45,13 +45,13 @@ def id_and_name():
     return list(set(id_lst))
 
 
-def links(id:str):
+def links(id:str, db="new"):
     q_data_obtain = f'''
             MATCH (n)-[r]->(m)
             WHERE n.id = $id
             RETURN m
             '''
-
+    session = driver.session(database=db)
     result = session.run(q_data_obtain, id=id).data()
     id_lst = []
     for i in result:
@@ -63,7 +63,7 @@ def links(id:str):
 # поиск ближайших друзей для элемента
 
 def first_friends(id: str):
-    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
     session1 = driver.session(database="neo4j")
 
     # q_data_obtain_1 = f'''
@@ -163,7 +163,7 @@ def main():
     # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
 
     # Local database:
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
     ids = id_from_new_db()
     print(ids)
     with driver.session(database="neo4j") as session:

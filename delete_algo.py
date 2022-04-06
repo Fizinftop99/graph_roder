@@ -4,7 +4,7 @@ from neo4j import GraphDatabase
 import second_step as sec
 import fast_step as fs
 
-driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
 session = driver.session()
 
 

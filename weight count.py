@@ -47,8 +47,8 @@ def main():
     # data5 = read_graph_data("5.xlsx")
     # data6 = read_graph_data("6.xlsx")
     # data7 = read_graph_data("7.xlsx")
-    # driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
-    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
+    # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     with driver.session() as session:
         session.write_transaction(clear_database)
         session.write_transaction(make_graph, data)
