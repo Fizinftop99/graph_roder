@@ -45,8 +45,8 @@ def db_query(tx: Transaction, query: str):
 
 def main():
     data = read_graph_data("data/2021-11-19 Roder связи.xlsx")
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-    # driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
+    # driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
+    driver = GraphDatabase.driver("neo4j://20.107.79.39:7687", auth=("neo4j", "Accelerati0n"))
     with driver.session() as session:
         session.write_transaction(clear_database)
         session.write_transaction(make_graph, data)

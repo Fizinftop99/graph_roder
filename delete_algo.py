@@ -1,13 +1,11 @@
 from datetime import datetime
 import numpy as np
 from neo4j import GraphDatabase
-import second_step as sec
-import fast_step as fs
-from data_process import get_gesns, get_all_id
+from data_process import get_gesns
 from graph_creation import create_graph
 
 driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "2310"))
-session = driver.session(database='new')
+session = driver.session(database='bfs')
 
 
 def simple_merging(start_id: str, end_id: str):
@@ -42,9 +40,6 @@ def removing_node(id: str):
                 WHERE n.id = $id
                 RETURN m
                 '''
-    # определяю драйвер в начале файла, здесь не нужно
-    # driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "Accelerati0n"))
-    # session = driver.session(database="new")
     incoming = session.run(income_data_obtain, id=id).data()
     outcoming = session.run(outcome_data_obtain, id=id).data()
     # преобразование результатов запроса в numpy.array
@@ -66,12 +61,24 @@ def removing_nodes(red_ids: list, ids: list):
             removing_node(element)
 
 
+def get_all_id():
+    q_data_obtain = '''
+        MATCH (n)
+        RETURN n
+        '''
+    result = session.run(q_data_obtain).data()
+    id_lst = []
+    for i in result:
+        id_lst.append((i['n']['id']))
+    return list(set(id_lst))
+
+
 def main():
-    create_graph()
-    gesns = get_gesns('data/График_ЕКС_по_объекту_Мосфильмовская.xlsx')
+    # create_graph()
+    # gesns = get_gesns('data/График_ЕКС_по_объекту_Мосфильмовская.xlsx')
     starttime = datetime.now()
     # removing_nodes(sec.id_from_new_db(), fs.id_from_new_db())
-    removing_nodes(gesns[2], get_all_id())
+    removing_nodes(['1', '3', '4', '9', '10', '11', '12', '13'], get_all_id())
     print(datetime.now() - starttime)
     driver.close()
 
