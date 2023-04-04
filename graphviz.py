@@ -50,7 +50,7 @@ def main():
     # gra3 = make_graph(data3)
     # gra3.render('Graph3', view=True)
 
-    data3 = read_graph_data('2021-11-19 Roder связи.xlsx')
+    data3 = read_graph_data('data/2021-11-19 Roder связи.xlsx')
     gra3 = make_graph(data3)
     gra3.render('Graph3')
 

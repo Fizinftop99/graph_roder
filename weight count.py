@@ -39,7 +39,7 @@ def clear_database(tx: Transaction):
 
 
 def main():
-    data = read_graph_data("2021-11-19 Roder связи.xlsx")
+    data = read_graph_data("data/2021-11-19 Roder связи.xlsx")
     # data = read_graph_data("1.xlsx")
     # data2 = read_graph_data("2.xlsx")
     # data3 = read_graph_data("3.xlsx")
